@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class GemData
   attr_reader :name, :info
 

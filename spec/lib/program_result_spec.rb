@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './lib/program_result'
 
 RSpec.describe 'ProgramResult' do

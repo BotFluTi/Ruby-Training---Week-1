@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler/setup'
 require_relative 'lib/program'
 require_relative 'lib/ruby_gems_api_client'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './lib/gem_data'
 
 RSpec.describe 'GemData' do

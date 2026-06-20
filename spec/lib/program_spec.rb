@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './lib/program'
 require './lib/gem_data'
 require './lib/ruby_gems_api_client'
