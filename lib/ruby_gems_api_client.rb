@@ -12,14 +12,14 @@ class RubyGemsApiClient
   end
 
   def gem(gem_name)
-    response = Faraday.get("#{API_URL}/gems/#{gem_name}.json")
+    response = @http_client.get("#{API_URL}/gems/#{gem_name}.json")
     json_response = JSON.parse(response.body)
 
     GemData.new(json_response['name'], json_response['info'])
   end
 
   def search(keyword)
-    response = Faraday.get("#{API_URL}/search.json", { query: keyword })
+    response = @http_client.get("#{API_URL}/search.json", { query: keyword })
     json_response = JSON.parse(response.body)
 
     json_response.map do |gem|
