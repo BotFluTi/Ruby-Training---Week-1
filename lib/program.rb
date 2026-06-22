@@ -16,12 +16,16 @@ class Program
       show(argument)
     when 'search'
       search(argument)
+    else
+      ProgramResult.new('Invalid command', 1)
     end
   end
 
   private
 
   def show(gem_name)
+    return ProgramResult.new('No argument after show', 1) if gem_name.nil?
+
     gem = @client.gem(gem_name)
 
     ProgramResult.new(
@@ -31,6 +35,8 @@ class Program
   end
 
   def search(keyword)
+    return ProgramResult.new('No argument after search', 1) if keyword.nil?
+
     gems = @client.search(keyword)
 
     output = gems.map do |gem|

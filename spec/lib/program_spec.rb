@@ -10,6 +10,20 @@ RSpec.describe 'Program' do
 
     let(:client) { instance_double(RubyGemsApiClient) }
 
+    context 'when command is invalid' do
+      let(:args) { ['invalid']}
+
+      it 'returns Invalid command message' do
+        expect(execute.output).to eq(
+          "Invalid command"
+        )
+      end
+      
+      it 'returns 1 exit code' do
+        expect(execute.exit_code).to eq(1)
+      end
+    end
+
     context 'when command is show' do
       let(:args) { %w[show rails] }
 
@@ -29,7 +43,7 @@ RSpec.describe 'Program' do
     end
 
     context 'when command is search' do
-      let(:args) { %w[search rails] }
+      let(:args) { ['search', 'rails'] }
 
       before do
         allow(client).to receive(:search) do
@@ -50,5 +64,34 @@ RSpec.describe 'Program' do
         )
       end
     end
+
+    context 'when show command is missing keyword' do
+      let(:args) { ['show']}
+
+      it 'returns missing argument command' do
+        expect(execute.output).to eq(
+          "No argument after show"
+        )
+      end
+      
+      it 'returns 1 exit code' do
+        expect(execute.exit_code).to eq(1)
+      end
+    end
+
+    context 'when search command is missing keyword' do
+      let(:args) { ['search']}
+
+      it 'returns missing argument command' do
+        expect(execute.output).to eq(
+          "No argument after search"
+        )
+      end
+      
+      it 'returns 1 exit code' do
+        expect(execute.exit_code).to eq(1)
+      end
+    end
+
   end
 end
