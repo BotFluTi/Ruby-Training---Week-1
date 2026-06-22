@@ -2,10 +2,14 @@
 
 require 'faraday'
 require 'json'
-require_relative 'gem_data'
+require './lib/gem_data'
 
 class RubyGemsApiClient
   API_URL = 'https://rubygems.org/api/v1'
+
+  def initialize(http_client)
+    @http_client = http_client
+  end
 
   def gem(gem_name)
     response = Faraday.get("#{API_URL}/gems/#{gem_name}.json")

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'program_result'
+require './lib/program_result'
 
 class Program
   def initialize(client)

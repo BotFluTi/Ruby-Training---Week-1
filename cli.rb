@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require_relative 'lib/program'
-require_relative 'lib/ruby_gems_api_client'
+require 'faraday'
+require './lib/program'
+require './lib/ruby_gems_api_client'
 
-result = Program.new(RubyGemsApiClient.new).execute(ARGV)
+client = RubyGemsApiClient.new(Faraday)
+result = Program.new(client).execute(ARGV)
 
 puts result.output
 exit result.exit_code
