@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require './lib/program_result'
+require 'faraday'
 
 class Program
   def initialize(client)
@@ -8,6 +9,14 @@ class Program
   end
 
   def execute(args)
+    execute_command(args)
+  rescue Faraday::TimeoutError
+    ProgramResult.new('Request timed out', 1)
+  end
+
+  private
+
+  def execute_command(args)
     command = args[0]
     argument = args[1]
 
@@ -20,8 +29,6 @@ class Program
       ProgramResult.new('Invalid command', 1)
     end
   end
-
-  private
 
   def show(gem_name)
     return ProgramResult.new('No argument after show', 1) if gem_name.nil?

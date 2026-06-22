@@ -3,6 +3,7 @@
 require './lib/program'
 require './lib/gem_data'
 require './lib/ruby_gems_api_client'
+require 'faraday'
 
 RSpec.describe 'Program' do
   describe '#execute' do
@@ -86,6 +87,22 @@ RSpec.describe 'Program' do
         expect(execute.output).to eq(
           'No argument after search'
         )
+      end
+
+      it 'returns 1 exit code' do
+        expect(execute.exit_code).to eq(1)
+      end
+    end
+
+    context 'when request times out' do
+      let(:args) { %w[search rails] }
+
+      before do
+        allow(client).to receive(:search).and_raise(Faraday::TimeoutError)
+      end
+
+      it 'returns timeout message' do
+        expect(execute.output).to eq('Request timed out')
       end
 
       it 'returns 1 exit code' do
