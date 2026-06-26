@@ -51,6 +51,13 @@ class Program
 
     gems = @client.search(keyword)
 
+    license_index = options.index('--license')
+
+    if license_index
+      selected_license = options[license_index + 1]
+      gems = gems.select { |gem| gem.licenses.include?(selected_license) }
+    end
+
     gems = gems.sort_by(&:downloads).reverse if options.include?('--most-downloads-first')
 
     output = gems.map do |gem|
