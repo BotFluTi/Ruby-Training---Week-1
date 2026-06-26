@@ -48,5 +48,9 @@ RSpec.describe 'RubyGemsApiClient' do
     it 'returns first gem downloads' do
       expect(search.first.downloads).to eq(100)
     end
+
+    it 'returns first gem licenses' do
+      expect(search.first.licenses).to eq(['MIT'])
+    end
   end
 end

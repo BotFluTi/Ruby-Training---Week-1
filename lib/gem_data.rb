@@ -7,6 +7,6 @@ class GemData
     @name = name
     @info = info
     @downloads = downloads
-    @licenses = licenses
+    @licenses = licenses || []
   end
 end

@@ -45,5 +45,25 @@ RSpec.describe Program do
         expect(execute.output).to eq('mit-gem - MIT licensed gem')
       end
     end
+
+    context 'when search has license and most downloads first options' do
+      let(:args) { %w[search email --license MIT --most-downloads-first] }
+
+      before do
+        allow(client).to receive(:search) do
+          [
+            GemData.new('less-popular-mit-gem', 'MIT gem', 10, ['MIT']),
+            GemData.new('apache-gem', 'Apache gem', 100, ['Apache-2.0']),
+            GemData.new('more-popular-mit-gem', 'MIT gem', 50, ['MIT'])
+          ]
+        end
+      end
+
+      it 'filters by license and orders by downloads descending' do
+        expect(execute.output).to eq(
+          "more-popular-mit-gem - MIT gem\nless-popular-mit-gem - MIT gem"
+        )
+      end
+    end
   end
 end
