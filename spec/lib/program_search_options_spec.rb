@@ -28,5 +28,22 @@ RSpec.describe Program do
         )
       end
     end
+
+    context 'when search has --license option' do
+      let(:args) { %w[search email --license MIT] }
+
+      before do
+        allow(client).to receive(:search) do
+          [
+            GemData.new('mit-gem', 'MIT licensed gem', 10, ['MIT']),
+            GemData.new('apache-gem', 'Apache licensed gem', 20, ['Apache-2.0'])
+          ]
+        end
+      end
+
+      it 'returns only gems with the selected license' do
+        expect(execute.output).to eq('mit-gem - MIT licensed gem')
+      end
+    end
   end
 end
