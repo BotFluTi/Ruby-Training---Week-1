@@ -50,20 +50,33 @@ class Program
     return ProgramResult.new('No argument after search', 1) if keyword.nil?
 
     gems = @client.search(keyword)
+    gems = apply_search_options(gems, options)
 
+    ProgramResult.new(format_search_output(gems), 0)
+  end
+
+  def apply_search_options(gems, options)
+    gems = filter_by_license(gems, options)
+    sort_by_downloads(gems, options)
+  end
+
+  def filter_by_license(gems, options)
     license_index = options.index('--license')
+    return gems unless license_index
 
-    if license_index
-      selected_license = options[license_index + 1]
-      gems = gems.select { |gem| gem.licenses.include?(selected_license) }
-    end
+    selected_license = options[license_index + 1]
+    gems.select { |gem| gem.licenses.include?(selected_license) }
+  end
 
-    gems = gems.sort_by(&:downloads).reverse if options.include?('--most-downloads-first')
+  def sort_by_downloads(gems, options)
+    return gems unless options.include?('--most-downloads-first')
 
-    output = gems.map do |gem|
+    gems.sort_by(&:downloads).reverse
+  end
+
+  def format_search_output(gems)
+    gems.map do |gem|
       "#{gem.name} - #{gem.info}"
     end.join("\n")
-
-    ProgramResult.new(output, 0)
   end
 end
