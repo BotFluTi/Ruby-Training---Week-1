@@ -44,5 +44,9 @@ RSpec.describe 'RubyGemsApiClient' do
     it 'returns first gem info about the provided keyword' do
       expect(search.first.info).to eq('Ruby on Rails is a full-stack web framework.')
     end
+
+    it 'returns first gem downloads' do
+      expect(search.first.downloads).to eq(100)
+    end
   end
 end

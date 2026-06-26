@@ -23,7 +23,7 @@ class RubyGemsApiClient
     json_response = JSON.parse(response.body)
 
     json_response.map do |gem|
-      GemData.new(gem['name'], gem['info'])
+      GemData.new(gem['name'], gem['info'], gem['downloads'])
     end
   end
 

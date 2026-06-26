@@ -1,10 +1,12 @@
 [
   {
     "name": "rails",
-    "info": "Ruby on Rails is a full-stack web framework."
+    "info": "Ruby on Rails is a full-stack web framework.",
+    "downloads": 100
   },
   {
     "name": "rails-html-sanitizer",
-    "info": "HTML sanitization for Rails applications."
+    "info": "HTML sanitization for Rails applications.",
+    "downloads": 50
   }
 ]

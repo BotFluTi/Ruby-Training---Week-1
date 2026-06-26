@@ -19,12 +19,17 @@ class Program
   def execute_command(args)
     command = args[0]
     argument = args[1]
+    options = args[2..]
 
+    run_command(command, argument, options)
+  end
+
+  def run_command(command, argument, options)
     case command
     when 'show'
       show(argument)
     when 'search'
-      search(argument)
+      search(argument, options)
     else
       ProgramResult.new('Invalid command', 1)
     end
@@ -41,10 +46,12 @@ class Program
     )
   end
 
-  def search(keyword)
+  def search(keyword, options = [])
     return ProgramResult.new('No argument after search', 1) if keyword.nil?
 
     gems = @client.search(keyword)
+
+    gems = gems.sort_by(&:downloads).reverse if options.include?('--most-downloads-first')
 
     output = gems.map do |gem|
       "#{gem.name} - #{gem.info}"

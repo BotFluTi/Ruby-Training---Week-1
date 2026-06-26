@@ -4,9 +4,9 @@ require './lib/program'
 require './lib/gem_data'
 require './lib/ruby_gems_api_client'
 
-RSpec.describe 'Program search options' do
+RSpec.describe Program do
   describe '#execute' do
-    subject(:execute) { Program.new(client).execute(args) }
+    subject(:execute) { described_class.new(client).execute(args) }
 
     let(:client) { instance_double(RubyGemsApiClient) }
 
