@@ -1,0 +1,24 @@
+# Bundler
+.bundle/
+vendor/bundle/
+
+# Ruby
+*.gem
+.ruby-version
+
+# Logs
+*.log
+log/
+
+# Coverage
+coverage/
+
+# Environment
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
