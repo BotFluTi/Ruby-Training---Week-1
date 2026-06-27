@@ -39,6 +39,7 @@ class Program
     return ProgramResult.new('No argument after show', 1) if gem_name.nil?
 
     gem = @client.gem(gem_name)
+    return ProgramResult.new('Gem not found', 1) if gem.nil?
 
     ProgramResult.new(
       "Name: #{gem.name}\nInfo: #{gem.info}",
@@ -56,21 +57,38 @@ class Program
   end
 
   def apply_search_options(gems, options)
-    gems = filter_by_license(gems, options)
-    sort_by_downloads(gems, options)
+    search_options(options).each do |option, value|
+      case option
+      when '--license'
+        gems = filter_by_license(gems, value)
+      when '--most-downloads-first'
+        gems = sort_by_downloads(gems)
+      end
+    end
+
+    gems
   end
 
-  def filter_by_license(gems, options)
-    license_index = options.index('--license')
-    return gems unless license_index
+  def search_options(options)
+    options_list = []
 
-    selected_license = options[license_index + 1]
+    options_list << ['--license', license_value(options)] if options.include?('--license')
+    options_list << ['--most-downloads-first', nil] if options.include?('--most-downloads-first')
+
+    options_list
+  end
+
+  def license_value(options)
+    license_index = options.index('--license')
+
+    options[license_index + 1]
+  end
+
+  def filter_by_license(gems, selected_license)
     gems.select { |gem| gem.licenses.include?(selected_license) }
   end
 
-  def sort_by_downloads(gems, options)
-    return gems unless options.include?('--most-downloads-first')
-
+  def sort_by_downloads(gems)
     gems.sort_by(&:downloads).reverse
   end
 

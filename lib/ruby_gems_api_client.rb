@@ -13,9 +13,13 @@ class RubyGemsApiClient
 
   def gem(gem_name)
     response = get("#{API_URL}/gems/#{gem_name}.json")
+    return nil unless successful_response?(response)
+
     json_response = JSON.parse(response.body)
 
     GemData.new(json_response['name'], json_response['info'])
+  rescue JSON::ParserError
+    nil
   end
 
   def search(keyword)
@@ -28,6 +32,12 @@ class RubyGemsApiClient
   end
 
   private
+
+  def successful_response?(response)
+    return true unless response.respond_to?(:status)
+
+    response.status == 200
+  end
 
   def get(url, params = {})
     @http_client.get(url, params, headers)

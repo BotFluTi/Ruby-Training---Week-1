@@ -94,6 +94,22 @@ RSpec.describe 'Program' do
       end
     end
 
+    context 'when show command receives a gem that does not exist' do
+      let(:args) { %w[show missing-gem] }
+
+      before do
+        allow(client).to receive(:gem).and_return(nil)
+      end
+
+      it 'returns gem not found message' do
+        expect(execute.output).to eq('Gem not found')
+      end
+
+      it 'returns 1 exit code' do
+        expect(execute.exit_code).to eq(1)
+      end
+    end
+
     context 'when request times out' do
       let(:args) { %w[search rails] }
 
