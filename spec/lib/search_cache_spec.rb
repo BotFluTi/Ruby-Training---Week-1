@@ -6,25 +6,31 @@ require 'fileutils'
 require 'json'
 
 RSpec.describe SearchCache do
-  let(:cache_dir) { 'spec/tmp/test_cache' }
-  let(:current_time) { Time.new(2026, 6, 27, 12, 0, 0) }
+  let(:cache) do
+    {
+      dir: 'cache',
+      keyword: 'rails',
+      file_path: 'cache/rails.json',
+      file_content: File.read('spec/fixtures/rails_cache.json')
+    }
+  end
 
-  after do
-    FileUtils.rm_rf(cache_dir)
+  let(:time) do
+    {
+      created_at: 100_000,
+      one_day: 24 * 60 * 60
+    }
   end
 
   describe '#read' do
-    subject(:read) { described_class.new(cache_dir, current_time).read(keyword) }
+    subject(:read) { described_class.new(cache[:dir], current_time).read(cache[:keyword]) }
 
     context 'when cache file exists and is not expired' do
-      let(:keyword) { 'rails' }
+      let(:current_time) { Time.at(time[:created_at] + time[:one_day]) }
 
       before do
-        write_cache_file(
-          'rails',
-          created_at: Time.new(2026, 6, 26, 12, 0, 0).to_i,
-          results: [cached_gem_data]
-        )
+        allow(File).to receive(:exist?).with(cache[:file_path]).and_return(true)
+        allow(File).to receive(:read).with(cache[:file_path]).and_return(cache[:file_content])
       end
 
       it 'returns cached gem name' do
@@ -45,7 +51,11 @@ RSpec.describe SearchCache do
     end
 
     context 'when cache file does not exist' do
-      let(:keyword) { 'missing' }
+      let(:current_time) { Time.at(time[:created_at] + time[:one_day]) }
+
+      before do
+        allow(File).to receive(:exist?).with(cache[:file_path]).and_return(false)
+      end
 
       it 'returns nil' do
         expect(read).to be_nil
@@ -53,14 +63,11 @@ RSpec.describe SearchCache do
     end
 
     context 'when cache file is expired' do
-      let(:keyword) { 'rails' }
+      let(:current_time) { Time.at(time[:created_at] + (3 * time[:one_day])) }
 
       before do
-        write_cache_file(
-          'rails',
-          created_at: Time.new(2026, 6, 24, 11, 59, 59).to_i,
-          results: [cached_gem_data]
-        )
+        allow(File).to receive(:exist?).with(cache[:file_path]).and_return(true)
+        allow(File).to receive(:read).with(cache[:file_path]).and_return(cache[:file_content])
       end
 
       it 'returns nil' do
@@ -70,9 +77,23 @@ RSpec.describe SearchCache do
   end
 
   describe '#write' do
-    subject(:write) { described_class.new(cache_dir, current_time).write('rails', gems) }
+    subject(:write) { described_class.new(cache[:dir], current_time).write(cache[:keyword], gems) }
 
-    let(:cache_data) { JSON.parse(File.read("#{cache_dir}/rails.json")) }
+    let(:current_time) { Time.at(time[:created_at]) }
+
+    let(:cache_data_json) do
+      {
+        created_at: current_time.to_i,
+        results: [
+          {
+            name: 'rails',
+            info: 'Ruby on Rails is a full-stack web framework.',
+            downloads: 100,
+            licenses: ['MIT']
+          }
+        ]
+      }.to_json
+    end
 
     let(:gems) do
       [
@@ -80,60 +101,24 @@ RSpec.describe SearchCache do
       ]
     end
 
-    it 'creates a cache file for the keyword' do
-      write
-
-      expect(File.exist?("#{cache_dir}/rails.json")).to be true
+    before do
+      allow(FileUtils).to receive(:mkdir_p)
+      allow(File).to receive(:write)
     end
 
-    it 'writes the current time' do
+    it 'creates the cache directory' do
       write
 
-      expect(cache_data['created_at']).to eq(current_time.to_i)
+      expect(FileUtils).to have_received(:mkdir_p).with(cache[:dir])
     end
 
-    it 'writes the gem name' do
+    it 'writes cache data to the file' do
       write
 
-      expect(cache_data['results'].first['name']).to eq('rails')
-    end
-
-    it 'writes the gem info' do
-      write
-
-      expect(cache_data['results'].first['info']).to eq(
-        'Ruby on Rails is a full-stack web framework.'
+      expect(File).to have_received(:write).with(
+        cache[:file_path],
+        cache_data_json
       )
     end
-
-    it 'writes the gem downloads' do
-      write
-
-      expect(cache_data['results'].first['downloads']).to eq(100)
-    end
-
-    it 'writes the gem licenses' do
-      write
-
-      expect(cache_data['results'].first['licenses']).to eq(['MIT'])
-    end
-  end
-
-  def cached_gem_data
-    {
-      name: 'rails',
-      info: 'Ruby on Rails is a full-stack web framework.',
-      downloads: 100,
-      licenses: ['MIT']
-    }
-  end
-
-  def write_cache_file(keyword, cache_data)
-    FileUtils.mkdir_p(cache_dir)
-
-    File.write(
-      "#{cache_dir}/#{keyword}.json",
-      cache_data.to_json
-    )
   end
 end
