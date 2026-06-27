@@ -24,7 +24,8 @@ RSpec.describe Program do
 
       it 'returns gems ordered by downloads descending' do
         expect(execute.output).to eq(
-          "popular-gem - Many downloads\nsmall-gem - Few downloads"
+          "popular-gem - Many downloads - Downloads: 100\n" \
+          'small-gem - Few downloads - Downloads: 10'
         )
       end
     end
@@ -61,7 +62,8 @@ RSpec.describe Program do
 
       it 'filters by license and orders by downloads descending' do
         expect(execute.output).to eq(
-          "more-popular-mit-gem - MIT gem\nless-popular-mit-gem - MIT gem"
+          "more-popular-mit-gem - MIT gem - Downloads: 50\n" \
+          'less-popular-mit-gem - MIT gem - Downloads: 10'
         )
       end
     end
