@@ -7,9 +7,15 @@ require 'faraday'
 
 RSpec.describe 'Program' do
   describe '#execute' do
-    subject(:execute) { Program.new(client).execute(args) }
+    subject(:execute) { Program.new(client, cache).execute(args) }
 
     let(:client) { instance_double(RubyGemsApiClient) }
+    let(:cache) { instance_double(SearchCache) }
+
+    before do
+      allow(cache).to receive(:read).and_return(nil)
+      allow(cache).to receive(:write)
+    end
 
     context 'when command is invalid' do
       let(:args) { ['invalid'] }
@@ -87,6 +93,22 @@ RSpec.describe 'Program' do
         expect(execute.output).to eq(
           'No argument after search'
         )
+      end
+
+      it 'returns 1 exit code' do
+        expect(execute.exit_code).to eq(1)
+      end
+    end
+
+    context 'when show command receives a gem that does not exist' do
+      let(:args) { %w[show missing-gem] }
+
+      before do
+        allow(client).to receive(:gem).and_return(nil)
+      end
+
+      it 'returns gem not found message' do
+        expect(execute.output).to eq('Gem not found')
       end
 
       it 'returns 1 exit code' do

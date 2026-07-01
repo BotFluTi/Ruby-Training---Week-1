@@ -12,18 +12,38 @@ class RubyGemsApiClient
   end
 
   def gem(gem_name)
-    response = @http_client.get("#{API_URL}/gems/#{gem_name}.json")
+    response = get("#{API_URL}/gems/#{gem_name}.json")
+    return nil unless successful_response?(response)
+
     json_response = JSON.parse(response.body)
 
     GemData.new(json_response['name'], json_response['info'])
+  rescue JSON::ParserError
+    nil
   end
 
   def search(keyword)
-    response = @http_client.get("#{API_URL}/search.json", { query: keyword })
+    response = get("#{API_URL}/search.json", { query: keyword })
     json_response = JSON.parse(response.body)
 
     json_response.map do |gem|
-      GemData.new(gem['name'], gem['info'])
+      GemData.new(gem['name'], gem['info'], gem['downloads'], gem['licenses'])
     end
+  end
+
+  private
+
+  def successful_response?(response)
+    return true unless response.respond_to?(:status)
+
+    response.status == 200
+  end
+
+  def get(url, params = {})
+    @http_client.get(url, params, headers)
+  end
+
+  def headers
+    { 'Authorization' => ENV['RUBYGEMS_API_KEY'] }
   end
 end
