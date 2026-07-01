@@ -7,9 +7,15 @@ require 'faraday'
 
 RSpec.describe 'Program' do
   describe '#execute' do
-    subject(:execute) { Program.new(client).execute(args) }
+    subject(:execute) { Program.new(client, cache).execute(args) }
 
     let(:client) { instance_double(RubyGemsApiClient) }
+    let(:cache) { instance_double(SearchCache) }
+
+    before do
+      allow(cache).to receive(:read).and_return(nil)
+      allow(cache).to receive(:write)
+    end
 
     context 'when command is invalid' do
       let(:args) { ['invalid'] }

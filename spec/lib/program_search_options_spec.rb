@@ -6,9 +6,15 @@ require './lib/ruby_gems_api_client'
 
 RSpec.describe Program do
   describe '#execute' do
-    subject(:execute) { described_class.new(client).execute(args) }
+    subject(:execute) { described_class.new(client, cache).execute(args) }
 
     let(:client) { instance_double(RubyGemsApiClient) }
+    let(:cache) { instance_double(SearchCache) }
+
+    before do
+      allow(cache).to receive(:read).and_return(nil)
+      allow(cache).to receive(:write)
+    end
 
     context 'when search has --most-downloads-first option' do
       let(:args) { %w[search rails --most-downloads-first] }

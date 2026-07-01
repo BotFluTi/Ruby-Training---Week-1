@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require './lib/program_result'
+require './lib/search_cache'
 require 'faraday'
 require 'optparse'
 
 class Program
-  def initialize(client)
+  def initialize(client, cache = SearchCache.new('tmp'))
     @client = client
+    @cache = cache
   end
 
   def execute(args)
@@ -54,10 +56,19 @@ class Program
     return ProgramResult.new('No argument after search', 1) if keyword.nil?
 
     search_options = parse_search_options(options)
-    gems = @client.search(keyword)
+    gems = search_with_cache(keyword)
     gems = apply_search_options(gems, search_options)
 
     ProgramResult.new(format_search_output(gems, search_options), 0)
+  end
+
+  def search_with_cache(keyword)
+    cached_gems = @cache.read(keyword)
+    return cached_gems unless cached_gems.nil?
+
+    gems = @client.search(keyword)
+    @cache.write(keyword, gems)
+    gems
   end
 
   def parse_search_options(options)
